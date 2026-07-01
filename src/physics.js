@@ -16,3 +16,25 @@ export function applyGravity(planet, sun, G, dt) {
 
     planet.updateMesh()
 }
+
+export function applyPhysics(bodies, G, dt) {
+    //update accelerations
+    for (const A of bodies) {
+        A.acceleration.set(0, 0, 0)
+        for (const B of bodies) {
+            if (A === B) continue
+
+            //A to B
+            const r = B.position.clone().sub(A.position.clone())
+            const distance = r.length()
+            const a_A = G * B.mass / (distance * distance)
+            A.acceleration.addScaledVector(r.normalize(), a_A)
+        }
+    }
+    //integration
+    for (const body of bodies) {
+        body.velocity.addScaledVector(body.acceleration, dt)
+        body.position.addScaledVector(body.velocity, dt)
+        body.updateMesh()
+    }
+}
