@@ -1,12 +1,13 @@
 import * as THREE from 'three'
 import { createScene } from './src/scene.js'
 import Body from './src/body.js'
-import { applyGravity, applyPhysics } from './src/physics.js'
+import { applyPhysics } from './src/physics.js'
 import { createUI } from './src/ui.js'
 import { PRESETS } from './src/presets.js'
 
 const { scene, camera, renderer, controls } = createScene()
 
+const bodies = []
 const G = 1
 let dt = 0.02
 
@@ -33,13 +34,15 @@ function reset() {
 }
 
 createUI(PARAMS, reset, loadPreset)
-
+loadPreset(PARAMS.presets)
 // render loop
 function animate() {
   requestAnimationFrame(animate) //call animate again next frame
   if(!PARAMS.pause) {
-    const steps = Math.round(PARAMS.speed)
-    for (let i = 0; i < steps; i++) applyPhysics(bodies, G, dt, scene)
+    const steps = Math.floor(PARAMS.speed)
+    const frac = PARAMS.speed - steps
+    for (let i = 0; i < steps; i++){ applyPhysics(bodies, G, dt, scene)}
+    applyPhysics(bodies, G, dt * frac, scene)
   }
   controls.update()
   renderer.render(scene, camera)
